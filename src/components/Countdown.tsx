@@ -1,5 +1,5 @@
-import type { CountdownTime } from "../hooks/useCountdown";
-import { cn } from "../lib/utils";
+import type { CountdownTime } from "@/hooks/useCountdown";
+import { cn } from "@/lib/utils";
 
 interface CountdownProps {
 	countdown: CountdownTime;
@@ -10,17 +10,21 @@ function TimeUnit({
 	value,
 	label,
 	showSeparator = true,
+	showAgo = false,
 }: {
 	value: number;
 	label: string;
 	showSeparator?: boolean;
+	showAgo?: boolean;
 }) {
 	return (
 		<div className="flex items-baseline gap-1">
 			<span className="text-4xl font-bold tabular-nums sm:text-5xl">
 				{String(value).padStart(2, "0")}
 			</span>
-			<span className="text-xs text-muted-foreground uppercase">{label}</span>
+			<span className="text-xs text-muted-foreground uppercase">
+				{label} {showAgo ? "ago" : ""}
+			</span>
 			{showSeparator && (
 				<span className="text-2xl text-muted-foreground mx-1 sm:text-3xl">
 					:
@@ -35,17 +39,16 @@ export function Countdown({ countdown, className }: CountdownProps) {
 
 	return (
 		<div className={cn("flex flex-wrap items-center gap-1", className)}>
-			{isPast && (
-				<span className="text-muted-foreground text-sm mr-2">ago</span>
-			)}
 			{months > 0 && <TimeUnit value={months} label="mo" />}
 			{(months > 0 || days > 0) && <TimeUnit value={days} label="d" />}
 			<TimeUnit value={hours} label="h" />
 			<TimeUnit value={minutes} label="m" />
-			<TimeUnit value={seconds} label="s" showSeparator={false} />
-			{isPast && (
-				<span className="text-muted-foreground text-sm ml-2">ago</span>
-			)}
+			<TimeUnit
+				value={seconds}
+				label="s"
+				showSeparator={false}
+				showAgo={isPast}
+			/>
 		</div>
 	);
 }

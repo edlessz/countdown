@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RecurrencePattern } from "../lib/storage";
+import { RecurrencePattern } from "@/lib/storage";
 
 export interface CountdownTime {
 	months: number;

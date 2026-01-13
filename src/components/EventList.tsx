@@ -1,4 +1,4 @@
-import type { Event } from "../lib/storage";
+import type { Event } from "@/lib/storage";
 import { EventCard } from "./EventCard";
 
 interface EventListProps {

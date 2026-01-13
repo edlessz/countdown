@@ -4,7 +4,7 @@ import {
 	type Event,
 	eventStorage,
 	type UpdateEventInput,
-} from "../lib/storage";
+} from "@/lib/storage";
 
 export function useEvents() {
 	const [events, setEvents] = useState<Event[]>([]);

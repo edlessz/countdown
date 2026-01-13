@@ -1,22 +1,22 @@
 import { type FormEvent, useEffect, useState } from "react";
-import type { CreateEventInput, Event } from "../lib/storage";
-import { RecurrencePattern } from "../lib/storage";
-import { Button } from "./ui/Button";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "./ui/Dialog";
-import { Input } from "./ui/Input";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "./ui/Select";
+} from "@/components/ui/select";
+import type { CreateEventInput, Event } from "@/lib/storage";
+import { RecurrencePattern } from "@/lib/storage";
 
 interface EventFormProps {
 	open: boolean;
@@ -144,7 +144,7 @@ export function EventForm({
 								setRecurrence(v as RecurrencePattern | "none")
 							}
 						>
-							<SelectTrigger id="recurrence">
+							<SelectTrigger id="recurrence" className="w-full">
 								<SelectValue placeholder="Select recurrence" />
 							</SelectTrigger>
 							<SelectContent>
