@@ -1,8 +1,18 @@
 import { Pencil, Trash2 } from "lucide-react";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useCountdown } from "@/hooks/useCountdown";
 import type { Event } from "@/lib/storage";
-// import { RecurrencePattern } from "@/lib/storage";
 import { Countdown } from "./Countdown";
 
 interface EventCardProps {
@@ -10,13 +20,6 @@ interface EventCardProps {
 	onEdit: (event: Event) => void;
 	onDelete: (id: string) => void;
 }
-
-// const recurrenceLabels: Record<RecurrencePattern, string> = {
-// 	[RecurrencePattern.DAILY]: "Daily",
-// 	[RecurrencePattern.WEEKLY]: "Weekly",
-// 	[RecurrencePattern.MONTHLY]: "Monthly",
-// 	[RecurrencePattern.YEARLY]: "Yearly",
-// };
 
 export function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 	const countdown = useCountdown(event.datetime, event.recurrence);
@@ -36,31 +39,46 @@ export function EventCard({ event, onEdit, onDelete }: EventCardProps) {
 				<div className="flex items-center gap-3">
 					<span className="text-4xl">{event.emoji}</span>
 					<div>
-						<div className="flex gap-4">
-							<h3 className="text-xl font-semibold text-card-foreground">
-								{event.title}
-							</h3>
-							{/* {event.recurrence && (
-								<span className="inline-flex items-center rounded-full bg-primary/10 px-2 text-xs font-medium text-primary">
-									{recurrenceLabels[event.recurrence]}
-								</span>
-							)} */}
-						</div>
-
+						<h3 className="text-xl font-semibold text-card-foreground">
+							{event.title}
+						</h3>
 						<p className="text-sm text-muted-foreground">{formattedDate}</p>
 					</div>
 				</div>
 				<div className="flex gap-1">
-					<Button variant="ghost" size="icon" onClick={() => onEdit(event)}>
-						<Pencil className="size-4" />
-					</Button>
 					<Button
 						variant="ghost"
 						size="icon"
-						onClick={() => onDelete(event.id)}
+						onClick={() => onEdit(event)}
+						aria-label="Edit event"
 					>
-						<Trash2 className="size-4 text-destructive" />
+						<Pencil className="size-4" />
 					</Button>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button variant="ghost" size="icon" aria-label="Delete event">
+								<Trash2 className="size-4 text-destructive" />
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Delete event?</AlertDialogTitle>
+								<AlertDialogDescription>
+									Are you sure you want to delete "{event.title}"? This action
+									cannot be undone.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction
+									variant="destructive"
+									onClick={() => onDelete(event.id)}
+								>
+									Delete
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</div>
 			</div>
 			<Countdown countdown={countdown} />

@@ -3,6 +3,7 @@ import {
 	type ReactNode,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from "react";
 
@@ -10,25 +11,22 @@ const TickContext = createContext<number>(0);
 
 export function TickProvider({ children }: { children: ReactNode }) {
 	const [tick, setTick] = useState(0);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
-		let cancelled = false;
-
 		const doTick = () => {
-			if (cancelled) return;
-
 			setTick((t) => t + 1);
-
 			const delay = 1000 - (Date.now() % 1000);
-			setTimeout(doTick, delay);
+			timeoutRef.current = setTimeout(doTick, delay);
 		};
 
 		const firstDelay = 1000 - (Date.now() % 1000);
-		const timeout = setTimeout(doTick, firstDelay);
+		timeoutRef.current = setTimeout(doTick, firstDelay);
 
 		return () => {
-			cancelled = true;
-			clearTimeout(timeout);
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
 		};
 	}, []);
 

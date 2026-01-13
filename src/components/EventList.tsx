@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { getNextOccurrence } from "@/lib/date-utils";
 import type { Event } from "@/lib/storage";
 import { EventCard } from "./EventCard";
 
@@ -8,23 +10,26 @@ interface EventListProps {
 }
 
 export function EventList({ events, onEdit, onDelete }: EventListProps) {
-	// Sort by datetime (upcoming first, then past events)
-	const sortedEvents = [...events].sort((a, b) => {
-		const dateA = new Date(a.datetime).getTime();
-		const dateB = new Date(b.datetime).getTime();
+	// Sort by next occurrence (respects recurrence), upcoming first
+	const sortedEvents = useMemo(() => {
 		const now = Date.now();
 
-		// Both in future: sort ascending (nearest first)
-		if (dateA > now && dateB > now) {
-			return dateA - dateB;
-		}
-		// Both in past: sort descending (most recent first)
-		if (dateA <= now && dateB <= now) {
-			return dateB - dateA;
-		}
-		// Future events come before past events
-		return dateA > now ? -1 : 1;
-	});
+		return [...events].sort((a, b) => {
+			const dateA = getNextOccurrence(a.datetime, a.recurrence).getTime();
+			const dateB = getNextOccurrence(b.datetime, b.recurrence).getTime();
+
+			// Both in future: sort ascending (nearest first)
+			if (dateA > now && dateB > now) {
+				return dateA - dateB;
+			}
+			// Both in past: sort descending (most recent first)
+			if (dateA <= now && dateB <= now) {
+				return dateB - dateA;
+			}
+			// Future events come before past events
+			return dateA > now ? -1 : 1;
+		});
+	}, [events]);
 
 	if (events.length === 0) {
 		return (

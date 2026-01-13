@@ -45,8 +45,15 @@ export function EventForm({
 			setTitle(editingEvent.title);
 			setEmoji(editingEvent.emoji);
 			const dt = new Date(editingEvent.datetime);
-			setDate(dt.toISOString().split("T")[0]);
-			setTime(dt.toTimeString().slice(0, 8));
+			// Use local date components to avoid timezone issues
+			const year = dt.getFullYear();
+			const month = String(dt.getMonth() + 1).padStart(2, "0");
+			const day = String(dt.getDate()).padStart(2, "0");
+			const hours = String(dt.getHours()).padStart(2, "0");
+			const minutes = String(dt.getMinutes()).padStart(2, "0");
+			const seconds = String(dt.getSeconds()).padStart(2, "0");
+			setDate(`${year}-${month}-${day}`);
+			setTime(`${hours}:${minutes}:${seconds}`);
 			setRecurrence(editingEvent.recurrence ?? "none");
 		} else {
 			setTitle("");

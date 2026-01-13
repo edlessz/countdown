@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { RecurrencePattern } from "@/lib/storage";
+import { getMonthsDaysDiff, getNextOccurrence } from "@/lib/date-utils";
+import type { RecurrencePattern } from "@/lib/storage";
 import { useTick } from "./useTick";
 
 export interface CountdownTime {
@@ -12,40 +13,6 @@ export interface CountdownTime {
 	totalMilliseconds: number;
 }
 
-function getNextOccurrence(
-	datetime: string,
-	recurrence: RecurrencePattern | null,
-): Date {
-	const eventDate = new Date(datetime);
-	const now = new Date();
-
-	if (!recurrence || eventDate > now) {
-		return eventDate;
-	}
-
-	// For recurring events that are in the past, calculate next occurrence
-	const next = new Date(eventDate);
-
-	while (next <= now) {
-		switch (recurrence) {
-			case RecurrencePattern.DAILY:
-				next.setDate(next.getDate() + 1);
-				break;
-			case RecurrencePattern.WEEKLY:
-				next.setDate(next.getDate() + 7);
-				break;
-			case RecurrencePattern.MONTHLY:
-				next.setMonth(next.getMonth() + 1);
-				break;
-			case RecurrencePattern.YEARLY:
-				next.setFullYear(next.getFullYear() + 1);
-				break;
-		}
-	}
-
-	return next;
-}
-
 function calculateCountdown(targetDate: Date): CountdownTime {
 	const now = new Date();
 	const diff = targetDate.getTime() - now.getTime();
@@ -56,15 +23,13 @@ function calculateCountdown(targetDate: Date): CountdownTime {
 	const totalSeconds = Math.floor(absDiff / 1000);
 	const totalMinutes = Math.floor(totalSeconds / 60);
 	const totalHours = Math.floor(totalMinutes / 60);
-	const totalDays = Math.floor(totalHours / 24);
 
-	// Approximate months (30 days per month)
-	const months = Math.floor(totalDays / 30);
-	const remainingDaysAfterMonths = totalDays % 30;
+	// Use actual calendar months instead of 30-day approximation
+	const { months, days } = getMonthsDaysDiff(now, targetDate);
 
 	return {
 		months,
-		days: remainingDaysAfterMonths,
+		days,
 		hours: totalHours % 24,
 		minutes: totalMinutes % 60,
 		seconds: totalSeconds % 60,
