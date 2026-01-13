@@ -46,7 +46,7 @@ export function EventForm({
 			setEmoji(editingEvent.emoji);
 			const dt = new Date(editingEvent.datetime);
 			setDate(dt.toISOString().split("T")[0]);
-			setTime(dt.toTimeString().slice(0, 5));
+			setTime(dt.toTimeString().slice(0, 8));
 			setRecurrence(editingEvent.recurrence ?? "none");
 		} else {
 			setTitle("");
@@ -130,6 +130,7 @@ export function EventForm({
 								value={time}
 								onChange={(e) => setTime(e.target.value)}
 								required
+								step={1}
 							/>
 						</div>
 					</div>

@@ -4,7 +4,6 @@ import { EventForm } from "@/components/EventForm";
 import { EventList } from "@/components/EventList";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
-// import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useEvents } from "@/hooks/useEvents";
 import type { CreateEventInput, Event, UpdateEventInput } from "@/lib/storage";
 

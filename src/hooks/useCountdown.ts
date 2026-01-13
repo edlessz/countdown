@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { RecurrencePattern } from "@/lib/storage";
+import { useTick } from "./useTick";
 
 export interface CountdownTime {
 	months: number;
@@ -76,27 +77,16 @@ export function useCountdown(
 	datetime: string,
 	recurrence: RecurrencePattern | null,
 ): CountdownTime & { nextOccurrence: Date } {
-	const [countdown, setCountdown] = useState<CountdownTime>(() => {
-		const next = getNextOccurrence(datetime, recurrence);
-		return calculateCountdown(next);
-	});
+	// Subscribe to global tick - this causes re-render every second
+	const tick = useTick();
 
-	const [nextOccurrence, setNextOccurrence] = useState(() =>
-		getNextOccurrence(datetime, recurrence),
-	);
+	// Recalculate on every tick
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <must rerender every tick>
+	const result = useMemo(() => {
+		const nextOccurrence = getNextOccurrence(datetime, recurrence);
+		const countdown = calculateCountdown(nextOccurrence);
+		return { ...countdown, nextOccurrence };
+	}, [datetime, recurrence, tick]);
 
-	useEffect(() => {
-		const update = () => {
-			const next = getNextOccurrence(datetime, recurrence);
-			setNextOccurrence(next);
-			setCountdown(calculateCountdown(next));
-		};
-
-		update();
-		const interval = setInterval(update, 1000);
-
-		return () => clearInterval(interval);
-	}, [datetime, recurrence]);
-
-	return { ...countdown, nextOccurrence };
+	return result;
 }
