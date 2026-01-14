@@ -1,12 +1,15 @@
+import type { Emoji } from "frimousse";
 import { type FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -38,6 +41,16 @@ export function EventForm({
 	const [recurrence, setRecurrence] = useState<RecurrencePattern | "none">(
 		"none",
 	);
+	const [showPicker, setShowPicker] = useState(false);
+
+	// Defer emoji picker rendering until after dialog animation
+	useEffect(() => {
+		if (open) {
+			const timer = setTimeout(() => setShowPicker(true), 50);
+			return () => clearTimeout(timer);
+		}
+		setShowPicker(false);
+	}, [open]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: open is needed to reset form when dialog reopens
 	useEffect(() => {
@@ -71,7 +84,7 @@ export function EventForm({
 
 		onSubmit({
 			title,
-			emoji: emoji || "📅",
+			emoji: emoji ?? "📅",
 			datetime,
 			recurrence: recurrence === "none" ? null : recurrence,
 		});
@@ -83,9 +96,12 @@ export function EventForm({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
+			<DialogContent className="max-w-105">
 				<DialogHeader>
 					<DialogTitle>{editingEvent ? "Edit Event" : "Add Event"}</DialogTitle>
+					<DialogDescription>
+						Fill in the details for your event.
+					</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div className="space-y-2">
@@ -102,16 +118,21 @@ export function EventForm({
 					</div>
 
 					<div className="space-y-2">
-						<label htmlFor="emoji" className="text-sm font-medium">
-							Emoji
-						</label>
-						<Input
-							id="emoji"
-							value={emoji}
-							onChange={(e) => setEmoji(e.target.value)}
-							placeholder="📅"
-							className="text-2xl"
-						/>
+						<span className="text-sm font-medium">Emoji</span>
+						<div className="bg-popover rounded-lg p-2 h-100">
+							{showPicker && (
+								<EmojiPicker.Root
+									onEmojiSelect={(selected: Emoji) => setEmoji(selected.emoji)}
+								>
+									<EmojiPicker.Search placeholder="Search emoji..." />
+									<EmojiPicker.Viewport>
+										<EmojiPicker.Loading>Loading...</EmojiPicker.Loading>
+										<EmojiPicker.Empty>No emoji found</EmojiPicker.Empty>
+										<EmojiPicker.List selectedEmoji={emoji} />
+									</EmojiPicker.Viewport>
+								</EmojiPicker.Root>
+							)}
+						</div>
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
@@ -176,7 +197,7 @@ export function EventForm({
 							Cancel
 						</Button>
 						<Button type="submit" disabled={!isValid}>
-							{editingEvent ? "Save" : "Add"}
+							{emoji} {editingEvent ? "Save" : "Add"}
 						</Button>
 					</DialogFooter>
 				</form>
